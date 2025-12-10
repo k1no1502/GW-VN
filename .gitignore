@@ -1,25 +1,66 @@
-# CakePHP 3
+# Goodwill Vietnam - Git Ignore
 
-/vendor/*
-/config/app.php
+# Uploaded files
+uploads/*
+!uploads/.gitkeep
+!uploads/donations/
+uploads/donations/*
+!uploads/donations/.gitkeep
 
-/tmp/cache/models/*
-!/tmp/cache/models/empty
-/tmp/cache/persistent/*
-!/tmp/cache/persistent/empty
-/tmp/cache/views/*
-!/tmp/cache/views/empty
-/tmp/sessions/*
-!/tmp/sessions/empty
-/tmp/tests/*
-!/tmp/tests/empty
+# Configuration files (sensitive)
+config/database.php
+.env
 
-/logs/*
-!/logs/empty
+# Logs
+logs/
+*.log
+error.log
+access.log
 
-# CakePHP 2
+# Cache
+cache/
+tmp/
+temp/
 
-/app/tmp/*
-/app/Config/core.php
-/app/Config/database.php
-/vendors/*
+# Backup files
+backups/
+*.sql.gz
+*.sql.bak
+*.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# Composer
+/vendor/
+composer.phar
+composer.lock
+
+# Node modules (if using npm)
+node_modules/
+package-lock.json
+
+# Build files
+/dist/
+/build/
+
+# PHP
+*.php~
+*.phps
+
+# Session files
+sessions/
+
+# Test files
+phpunit.xml
+.phpunit.result.cache
