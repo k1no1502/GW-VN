@@ -32,7 +32,7 @@ Goodwill Vietnam là website thiện nguyện trực tuyến, kết nối ngư�
 | Backend          | PHP 8.x (PDO, session) |
 | Database         | MySQL 8.x (utf8mb4) |
 | Thư viện khác    | Bootstrap Icons, ZipArchive, SimpleXML |
-| Kiến trúc        | MVC đơn giản + module Admin/API |
+| Kiến trúc        | module Admin/API |
 
 ## 🖥️ **Yêu cầu hệ thống**
 - Apache/Nginx (XAMPP, WAMP/LAMP hoặc Laragon đều phù hợp).
