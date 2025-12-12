@@ -1,330 +1,130 @@
-# 🌐 GOODWILL VIETNAM - HỆ THỐNG THIỆN NGUYỆN
+# ?? Goodwill Vietnam � N?n t?ng thi?n nguy?n s?
 
-Website thiện nguyện hoàn chỉnh được xây dựng với **PHP + MySQL + HTML/CSS/JS + Bootstrap 5**
+Goodwill Vietnam l� website thi?n nguy?n tr?n v?n, k?t n?i ngu?i t?ng � ngu?i nh?n � ban v?n h�nh ch? v?i **PHP 8 + MySQL + HTML/CSS/JS + Bootstrap 5**. Gi�p c�c t? ch?c phi l?i nhu?n qu?n l� quy�n g�p, kho v?t ph?m, chi?n d?ch v� t�nh nguy?n vi�n tr�n m?t h? th?ng duy nh?t.
 
-## 📋 MỤC LỤC
-- [Tính năng](#tính-năng)
-- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
-- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-- [Cài đặt](#cài-đặt)
-- [Cấu trúc dự án](#cấu-trúc-dự-án)
-- [Tài khoản mặc định](#tài-khoản-mặc-định)
-- [Tính năng chi tiết](#tính-năng-chi-tiết)
+## ?? M?c l?c
+- [? T�nh nang n?i b?t](#-t�nh-nang-n?i-b?t)
+- [?? C�ng ngh? s? d?ng](#-c�ng-ngh?-s?-d?ng)
+- [??? Y�u c?u h? th?ng](#?-y�u-c?u-h?-th?ng)
+- [?? Hu?ng d?n c�i d?t nhanh](#?-hu?ng-d?n-c�i-d?t-nhanh)
+- [?? C?u tr�c thu m?c](#-c?u-tr�c-thu-m?c)
+- [?? T�i kho?n m?u](#-t�i-kho?n-m?u)
+- [?? Chi ti?t ch?c nang](#-chi-ti?t-ch?c-nang)
+- [??? B?o m?t & tu�n th?](#?-b?o-m?t--tu�n-th?)
+- [?? Quy tr�nh v?n h�nh](#-quy-tr�nh-v?n-h�nh)
+- [?? L? tr�nh ph�t tri?n](#-l?-tr�nh-ph�t-tri?n)
+- [?? H? tr? & t�i li?u](#-h?-tr?--t�i-li?u)
+- [?? Gi?y ph�p](#-gi?y-ph�p)
 
-## ✨ TÍNH NĂNG
+## ? T�nh nang n?i b?t
+- **Form quy�n g�p th�ng minh**: t?o nhi?u v?t ph?m, upload ?nh/link, nh?p h�ng lo?t t? Excel/CSV (.xlsx, .xls, .csv).
+- **Theo d�i quy�n g�p gi?ng don h�ng**: trang donation-tracking.php hi?n th? ti?n tr�nh duy?t, nh?p kho, ph�n ph?i b?ng timeline & ph?n tram ho�n th�nh.
+- **Shop thi?n nguy?n**: l?c danh m?c/lo?i gi�, gi? h�ng, thanh to�n COD, tra c?u tr?ng th�i giao h�ng.
+- **Admin Insight**: dashboard Chart.js, th?ng k� ngu?i d�ng, kho h�ng, quy�n g�p, chi?n d?ch, nh?t k� ho?t d?ng.
+- **Chi?n d?ch + t�nh nguy?n vi�n**: dang k� tr?c tuy?n, c?p nh?t ti?n d? chi?n d?ch, s? lu?ng v?t ph?m d� nh?n.
+- **Kho v?t ph?m**: duy?t quy�n g�p v�o kho, d?nh gi� (mi?n ph�, gi� r?, gi� thu?ng), g?n chi?n d?ch, qu?n l� t?n.
 
-### 🔐 Hệ thống xác thực
-- Đăng ký / Đăng nhập với mã hóa mật khẩu
-- Phân quyền: Admin, User, Guest
-- Quản lý hồ sơ người dùng
-- Đặt lại mật khẩu
+## ?? C�ng ngh? s? d?ng
+| T?ng            | C�ng ngh? |
+|-----------------|-----------|
+| Frontend        | HTML5, CSS3, Bootstrap 5, JavaScript, Chart.js |
+| Backend         | PHP 8.x (PDO, session) |
+| Database        | MySQL 8.x (utf8mb4) |
+| Thu vi?n kh�c   | Bootstrap Icons, ZipArchive, SimpleXML |
+| Ki?n tr�c       | MVC don gi?n + module Admin/API |
 
-### 💝 Chức năng quyên góp
-- Gửi quyên góp vật phẩm với hình ảnh
-- Theo dõi trạng thái quyên góp
-- Admin duyệt/từ chối quyên góp
-- Tự động thêm vào kho hàng khi duyệt
+## ??? Y�u c?u h? th?ng
+- Apache/Nginx (XAMPP, WAMP/LAMP ho?c Laragon d?u ph� h?p).
+- PHP = 8.0, b?t pdo_mysql, mbstring, zip, iconv.
+- MySQL = 8.0, charset utf8mb4.
+- Tr�nh duy?t hi?n d?i: Chrome, Edge, Firefox.
 
-### 🛒 Chức năng bán hàng
-- **Vật phẩm MIỄN PHÍ**: Người dùng có thể nhận miễn phí
-- **Vật phẩm GIÁ RẺ**: Bán với giá ưu đãi
-- Bộ lọc theo danh mục và loại giá
-- Giỏ hàng và thanh toán
-- Theo dõi đơn hàng
+## ?? Hu?ng d?n c�i d?t nhanh
+1. **Clone m� ngu?n**
+   `ash
+   cd C:\laragon\www
+   git clone <repo-url> "Cap 1 - 2"
+   `
+2. **T?o database**
+   - phpMyAdmin ? t?o DB goodwill_vietnam (utf8mb4).
+   - Import database/schema.sql (v� database/update_schema.sql n?u c�).
+3. **C?u h�nh** (config/database.php)
+   `php
+   define('DB_HOST', 'localhost');
+   define('DB_NAME', 'goodwill_vietnam');
+   define('DB_USER', 'root');
+   define('DB_PASS', '');
+   `
+4. **C?p quy?n**: thu m?c uploads/ ph?i cho ph�p ghi.
+5. **Truy c?p**: http://localhost/Cap%201%20-%202/
 
-### 🎯 Admin Panel
-- Dashboard với thống kê trực quan
-- Quản lý quyên góp (duyệt/từ chối)
-- Quản lý kho hàng (thiết lập giá bán)
-- Quản lý đơn hàng
-- Quản lý người dùng
-- Quản lý danh mục
-- Báo cáo và thống kê với Chart.js
-- Cấu hình hệ thống
+> ?? *Ch? c?n b?t th�m ZipArchive n?u mu?n d?c file .xlsx.*
 
-### 📊 Báo cáo & Thống kê
-- Thống kê số lượng người dùng, quyên góp, vật phẩm
-- Biểu đồ quyên góp theo tháng
-- Biểu đồ phân bố danh mục
-- Hoạt động gần đây
-
-## 🛠️ CÔNG NGHỆ SỬ DỤNG
-
-| Lớp | Công nghệ |
-|------|-----------|
-| **Frontend** | HTML5, CSS3, Bootstrap 5, JavaScript, Chart.js |
-| **Backend** | PHP 8.x (PDO) |
-| **Database** | MySQL 8.x |
-| **Icons** | Bootstrap Icons |
-| **Architecture** | MVC Pattern |
-
-## 📦 YÊU CẦU HỆ THỐNG
-
-- **XAMPP** (hoặc WAMP/LAMP):
-  - Apache Web Server
-  - PHP 8.0 trở lên
-  - MySQL 8.0 trở lên
-  - phpMyAdmin
-- **Browser**: Chrome, Firefox, Edge (phiên bản mới nhất)
-
-## 🚀 CÀI ĐẶT
-
-### Bước 1: Cài đặt XAMPP
-1. Tải XAMPP từ: https://www.apachefriends.org/
-2. Cài đặt và khởi động Apache + MySQL
-
-### Bước 2: Clone dự án
-```bash
-cd C:\xampp\htdocs
-git clone [repository-url] "Cap 1 - 2"
-```
-
-Hoặc giải nén file zip vào thư mục `C:\xampp\htdocs\Cap 1 - 2`
-
-### Bước 3: Tạo cơ sở dữ liệu
-1. Mở phpMyAdmin: http://localhost/phpmyadmin
-2. Tạo database mới tên `goodwill_vietnam`
-3. Import file: `database/schema.sql`
-4. Import file cập nhật: `database/update_schema.sql`
-
-**Hoặc chạy SQL trực tiếp:**
-```sql
--- Tạo database
-CREATE DATABASE goodwill_vietnam CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-Sau đó import 2 file SQL theo thứ tự:
-1. `schema.sql` - Cấu trúc cơ bản
-2. `update_schema.sql` - Cập nhật cho chức năng bán hàng
-
-### Bước 4: Cấu hình database
-Mở file `config/database.php` và kiểm tra cấu hình:
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'goodwill_vietnam');
-define('DB_USER', 'root');
-define('DB_PASS', ''); // Để trống nếu dùng XAMPP mặc định
-```
-
-### Bước 5: Phân quyền thư mục
-Đảm bảo thư mục `uploads/` có quyền ghi:
-```bash
-# Windows: Chuột phải -> Properties -> Security -> Edit
-# Cho phép Full Control cho user hiện tại
-```
-
-### Bước 6: Truy cập website
-1. Mở browser
-2. Truy cập: http://localhost/Cap%201%20-%202/
-
-## 📁 CẤU TRÚC DỰ ÁN
-
-```
+## ?? C?u tr�c thu m?c
+`
 Cap 1 - 2/
-├── admin/                  # Trang quản trị
-│   ├── dashboard.php       # Dashboard
-│   ├── donations.php       # Quản lý quyên góp
-│   ├── inventory.php       # Quản lý kho hàng
-│   ├── orders.php          # Quản lý đơn hàng
-│   └── includes/
-│       └── sidebar.php     # Sidebar admin
-├── api/                    # API endpoints
-│   ├── add-to-cart.php     # Thêm vào giỏ hàng
-│   ├── get-statistics.php  # Lấy thống kê
-│   ├── get-cart-count.php  # Đếm giỏ hàng
-│   └── ...
-├── assets/                 # Tài nguyên tĩnh
-│   ├── css/
-│   │   └── style.css       # Custom CSS
-│   ├── js/
-│   │   └── main.js         # Custom JavaScript
-│   └── images/
-├── config/                 # Cấu hình
-│   └── database.php        # Kết nối database
-├── database/               # SQL files
-│   ├── schema.sql          # Schema cơ bản
-│   └── update_schema.sql   # Cập nhật schema
-├── includes/               # Thư viện PHP
-│   └── functions.php       # Hàm tiện ích
-├── uploads/                # Thư mục upload
-│   └── donations/          # Ảnh quyên góp
-├── index.php               # Trang chủ
-├── login.php               # Đăng nhập
-├── register.php            # Đăng ký
-├── donate.php              # Quyên góp
-├── items.php               # Danh sách vật phẩm
-├── cart.php                # Giỏ hàng
-└── README.md               # File này
-```
++-- admin/                # Qu?n tr?: dashboard, donations, inventory...
++-- api/                  # Endpoint AJAX/REST nh?
++-- assets/               # CSS, JS, h�nh, template Excel
++-- config/               # database.php
++-- database/             # schema, seed
++-- includes/             # header/footer/functions
++-- uploads/              # ?nh quy�n g�p, chi?n d?ch
++-- donation-tracking.php # trang theo d�i quy�n g�p
++-- donate.php            # form quy�n g�p
++-- my-donations.php      # l?ch s? quy�n g�p
++-- order-tracking.php    # theo d�i don h�ng
++-- ...
+`
 
-## 👤 TÀI KHOẢN MẶC ĐỊNH
+## ?? T�i kho?n m?u
+| Lo?i  | Email                      | M?t kh?u |
+|-------|----------------------------|----------|
+| Admin | admin@goodwillvietnam.com | password |
+| User  | T? dang k� ho?c import    | �        |
 
-### Admin
-- **Email**: admin@goodwillvietnam.com
-- **Password**: password
-- **Quyền**: Toàn quyền quản trị hệ thống
+> ?? �?i m?t kh?u admin ngay sau khi kh?i ch?y.
 
-> **Lưu ý**: Đổi mật khẩu sau khi đăng nhập lần đầu!
+## ?? Chi ti?t ch?c nang
+### Ngu?i d�ng
+- **Quy�n g�p**: nh?p tay ho?c t?i Excel/CSV, gi?i h?n 5 ?nh/v?t ph?m, d?t l?ch nh?n, theo d�i ti?n tr�nh.
+- **Shop**: l?c danh m?c, lo?i gi�, khuy?n m�i; gi? h�ng, thanh to�n COD, xem l?ch s? don � tracking theo t?ng don.
+- **Chi?n d?ch & thi?n nguy?n**: xem nhu c?u, d�ng g�p nhanh, dang k� t�nh nguy?n vi�n.
+- **T�i kho?n**: qu?n l� h? so, d?i m?t kh?u, xem l?ch s? quy�n g�p (my-donations.php).
 
-## 🎯 TÍNH NĂNG CHI TIẾT
+### Qu?n tr? vi�n
+- Duy?t/T? ch?i quy�n g�p, ghi ch� n?i b?.
+- Qu?n l� kho: d?nh gi�, tr?ng th�i v?t ph?m, v? tr� luu tr?, li�n k?t chi?n d?ch.
+- Qu?n l� don h�ng, chi?n d?ch, danh m?c, ngu?i d�ng, ph?n h?i.
+- Dashboard tr?c quan (Chart.js) + nh?t k� ho?t d?ng.
 
-### 1. Chức năng User
+## ??? B?o m?t & tu�n th?
+- M?t kh?u bam b?ng password_hash.
+- PDO Prepared Statements ch?ng SQL Injection.
+- Ki?m tra session & ph�n quy?n tr�n m?i trang.
+- Ki?m tra MIME type tru?c khi luu ?nh.
+- Chu?n h�a UTF-8 khi x? l� Excel/CSV (h?n ch? l?i m� h�a ti?ng Vi?t).
 
-#### 1.1 Quyên góp vật phẩm
-- Upload nhiều ảnh (tối đa 5)
-- Chọn danh mục
-- Nhập thông tin chi tiết
-- Chọn ngày giờ nhận hàng
-- Theo dõi trạng thái
+## ?? Quy tr�nh v?n h�nh
+1. **Quy�n g�p**: g?i don ? admin duy?t ? nh?p kho ? ph�n ph?i ? ngu?i t?ng theo d�i.
+2. **Mua h�ng**: ch?n s?n ph?m ? gi? h�ng ? COD ? admin giao/ c?p nh?t tr?ng th�i.
+3. **Chi?n d?ch**: t?o chi?n d?ch ? k�u g?i v?t ph?m/t�nh nguy?n ? theo d�i ti?n d? tr�n dashboard.
 
-#### 1.2 Mua sắm vật phẩm
-- **Bộ lọc thông minh**:
-  - Theo danh mục (Quần áo, Đồ điện tử, Sách vở...)
-  - Theo loại giá (Miễn phí / Giá rẻ)
-  - Tìm kiếm theo tên
-- **Giỏ hàng**:
-  - Thêm/xóa vật phẩm
-  - Điều chỉnh số lượng
-  - Xem tổng tiền
-- **Thanh toán**:
-  - Nhập địa chỉ giao hàng
-  - Chọn phương thức thanh toán
-  - Theo dõi đơn hàng
+## ?? L? tr�nh ph�t tri?n
+- [ ] T�ch h?p thanh to�n tr?c tuy?n (VNPay/MoMo).
+- [ ] Th�ng b�o realtime / push notification.
+- [ ] Xu?t b�o c�o PDF/Excel 1-click.
+- [ ] API RESTful c�ng khai.
+- [ ] ?ng d?ng mobile, social login, email marketing.
 
-#### 1.3 Quản lý cá nhân
-- Xem hồ sơ
-- Cập nhật thông tin
-- Xem lịch sử quyên góp
-- Xem đơn hàng đã đặt
+## ?? H? tr? & t�i li?u
+1. **Log l?i**: pache/logs/error.log, mysql/data/*.err.
+2. **Uploads**: d?m b?o uploads/ du?c quy?n ghi.
+3. **C?u h�nh DB**: ki?m tra config/database.php.
+4. **Ph? l?c**: file INSTALL.txt m� t? chi ti?t hon (k�m checklist tri?n khai, script seed d? li?u).
 
-### 2. Chức năng Admin
-
-#### 2.1 Quản lý quyên góp
-- Xem danh sách quyên góp
-- Lọc theo trạng thái (Chờ duyệt/Đã duyệt/Từ chối)
-- Duyệt quyên góp → Tự động thêm vào kho
-- Từ chối với lý do
-- Xem chi tiết và hình ảnh
-
-#### 2.2 Quản lý kho hàng
-- **Thiết lập giá bán**:
-  - Miễn phí (0 VNĐ)
-  - Giá rẻ (< 100,000 VNĐ)
-  - Giá thông thường
-- **Quản lý trạng thái**:
-  - Có sẵn
-  - Đã đặt
-  - Đã bán
-  - Hư hỏng
-- **Hiển thị trong shop**:
-  - Bật/tắt hiển thị
-  - Cập nhật số lượng
-
-#### 2.3 Dashboard
-- Thống kê tổng quan
-- Biểu đồ quyên góp theo tháng
-- Biểu đồ phân bố danh mục
-- Hoạt động gần đây
-- Quyên góp cần duyệt
-
-## 🔒 BẢO MẬT
-
-- Mật khẩu được mã hóa bằng `password_hash()`
-- Chống SQL Injection bằng PDO Prepared Statements
-- Xác thực session cho mọi trang riêng tư
-- Phân quyền chi tiết (Admin/User/Guest)
-- Validate dữ liệu đầu vào
-- Upload file an toàn (kiểm tra MIME type)
-
-## 📊 DATABASE
-
-### Các bảng chính:
-- `users` - Người dùng
-- `roles` - Vai trò
-- `donations` - Quyên góp
-- `inventory` - Kho hàng
-- `orders` - Đơn hàng
-- `order_items` - Chi tiết đơn hàng
-- `cart` - Giỏ hàng
-- `categories` - Danh mục
-- `campaigns` - Chiến dịch
-- `feedback` - Phản hồi
-- `activity_logs` - Nhật ký hoạt động
-
-### Views:
-- `v_statistics` - Thống kê tổng quan
-- `v_donation_details` - Chi tiết quyên góp
-- `v_inventory_items` - Vật phẩm kho
-- `v_saleable_items` - Vật phẩm bán hàng
-- `v_order_details` - Chi tiết đơn hàng
-
-## 🎨 GIAO DIỆN
-
-- **Responsive Design**: Tối ưu cho mobile, tablet, desktop
-- **Color Theme**: Xanh lá thiện nguyện (#198754)
-- **Typography**: Roboto, sans-serif
-- **Icons**: Bootstrap Icons
-- **Components**: Bootstrap 5
-- **Charts**: Chart.js
-
-## 📝 WORKFLOW
-
-### Quy trình quyên góp:
-1. User đăng ký/đăng nhập
-2. Gửi quyên góp với thông tin và hình ảnh
-3. Admin xem và duyệt quyên góp
-4. Hệ thống tự động thêm vào kho hàng
-5. Admin thiết lập loại giá (Miễn phí/Giá rẻ)
-6. Vật phẩm hiển thị trên trang shop
-
-### Quy trình mua hàng:
-1. User duyệt vật phẩm và lọc theo nhu cầu
-2. Thêm vật phẩm vào giỏ hàng
-3. Xem và chỉnh sửa giỏ hàng
-4. Thanh toán và tạo đơn hàng
-5. Admin xử lý đơn hàng
-6. User nhận vật phẩm
-
-## 🚀 NÂNG CẤP TƯƠNG LAI
-
-- [ ] Tích hợp cổng thanh toán online (VNPay, Momo)
-- [ ] Hệ thống chat realtime
-- [ ] Notification push
-- [ ] Export báo cáo Excel/PDF
-- [ ] API RESTful
-- [ ] Mobile app
-- [ ] Social login (Facebook, Google)
-- [ ] Email marketing
-- [ ] Đánh giá và review vật phẩm
-
-## 📞 HỖ TRỢ
-
-Nếu gặp vấn đề khi cài đặt hoặc sử dụng:
-
-1. **Kiểm tra log lỗi**:
-   - PHP errors: `C:\xampp\apache\logs\error.log`
-   - MySQL errors: `C:\xampp\mysql\data\*.err`
-
-2. **Thư mục uploads**:
-   - Đảm bảo tồn tại: `uploads/donations/`
-   - Có quyền ghi
-
-3. **Database**:
-   - Kiểm tra kết nối trong `config/database.php`
-   - Import đầy đủ 2 file SQL
-
-4. **PHP Version**:
-   - Tối thiểu PHP 8.0
-   - Bật PDO extension
-
-## 📄 LICENSE
-
-Dự án được phát triển cho mục đích giáo dục và phi lợi nhuận.
-
-## 👨‍💻 PHÁT TRIỂN BỞI
-
-Goodwill Vietnam Team - 2024
+## ?? Gi?y ph�p
+D? �n ph?c v? m?c d�ch gi�o d?c v� c?ng d?ng, kh�ng s? d?ng cho m?c d�ch thuong m?i n?u chua c� s? d?ng � c?a Goodwill Vietnam Team (2024).
 
 ---
-
-**Chúc bạn triển khai thành công! 🎉**
+**?? Ch�c b?n tri?n khai n?n t?ng thi?n nguy?n th�nh c�ng!**

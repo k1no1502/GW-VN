@@ -131,7 +131,7 @@ $pageTitle = $pageTitle ?? "Goodwill Vietnam";
                                     <i class="bi bi-bag me-2"></i>Đơn hàng của tôi
                                 </a></li>
                                                                 <li><a class="dropdown-item" href="volunteer.php">
-                                    <i class="bi bi-people me-2"></i>TAªnh nguy ¯Øn viA¦n
+                                <i class="bi bi-people me-2"></i>Tình nguyện viên
                                 </a></li>
                                 <li><a class="dropdown-item" href="feedback.php">
                                     <i class="bi bi-chat-dots me-2"></i>Phản hồi

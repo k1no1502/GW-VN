@@ -155,6 +155,67 @@ $stats = [
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="../assets/css/style.css" rel="stylesheet">
+    <style>
+        .campaign-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .campaign-action-btn {
+            width: 48px;
+            height: 40px;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .campaign-action-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+        .campaign-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .campaign-action-btn.view { background-color: #0d6efd; }
+        .campaign-action-btn.edit { background-color: #6c757d; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.18); }
+        .campaign-action-btn.delete { background-color: #dc3545; }
+        .campaign-action-btn.pause { background-color: #f1b600; color: #2d2d2d; }
+        .campaign-action-btn.resume { background-color: #198754; }
+        .campaign-action-btn i { pointer-events: none; }
+        .modal-action-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .modal-action-btn {
+            width: 48px;
+            height: 40px;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .modal-action-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+        .modal-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .modal-action-btn.cancel { background-color: #6c757d; }
+        .modal-action-btn.reject { background-color: #dc3545; }
+        .modal-action-btn.save { background-color: #0d6efd; }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -335,7 +396,7 @@ $stats = [
                                                     <div class="campaign-actions">
                                                         <!-- Luôn có nút Nhìn -->
                                                         <button type="button"
-                                                                class="btn btn-info campaign-action-btn"
+                                                                class="campaign-action-btn view"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#viewModal<?php echo $campaign['campaign_id']; ?>"
                                                                 title="Xem chi tiết">
@@ -356,7 +417,7 @@ $stats = [
                                                             </form>
 
                                                             <button type="button"
-                                                                    class="btn btn-outline-danger campaign-action-btn"
+                                                                    class="campaign-action-btn delete"
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#rejectModal<?php echo $campaign['campaign_id']; ?>"
                                                                     title="Từ chối chiến dịch">
@@ -366,7 +427,7 @@ $stats = [
                                                         <?php else: ?>
                                                             <!-- Sau khi duyệt: [Nhìn] [Chỉnh sửa] [Xóa] + nút Dừng/Chạy -->
                                                             <button type="button"
-                                                                    class="btn btn-primary campaign-action-btn"
+                                                                    class="campaign-action-btn edit"
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#editModal<?php echo $campaign['campaign_id']; ?>"
                                                                     title="Chỉnh sửa chiến dịch">
@@ -377,7 +438,7 @@ $stats = [
                                                                 <input type="hidden" name="campaign_id" value="<?php echo $campaign['campaign_id']; ?>">
                                                                 <input type="hidden" name="action" value="delete">
                                                                 <button type="submit"
-                                                                        class="btn btn-danger campaign-action-btn"
+                                                                        class="campaign-action-btn delete"
                                                                         title="Xóa chiến dịch">
                                                                     <i class="bi bi-trash"></i>
                                                                 </button>
@@ -389,7 +450,7 @@ $stats = [
                                                                     <input type="hidden" name="campaign_id" value="<?php echo $campaign['campaign_id']; ?>">
                                                                     <input type="hidden" name="action" value="pause">
                                                                     <button type="submit"
-                                                                            class="btn btn-warning campaign-action-btn"
+                                                                            class="campaign-action-btn pause"
                                                                             title="Tạm dừng chiến dịch">
                                                                         <i class="bi bi-pause-fill"></i>
                                                                     </button>
@@ -400,7 +461,7 @@ $stats = [
                                                                     <input type="hidden" name="campaign_id" value="<?php echo $campaign['campaign_id']; ?>">
                                                                     <input type="hidden" name="action" value="resume">
                                                                     <button type="submit"
-                                                                            class="btn btn-success campaign-action-btn"
+                                                                            class="campaign-action-btn resume"
                                                                             title="Tiếp tục chiến dịch">
                                                                         <i class="bi bi-play-fill"></i>
                                                                     </button>
@@ -555,11 +616,15 @@ $stats = [
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                                                <div class="modal-action-group">
+                                                                    <button type="button" class="modal-action-btn cancel" data-bs-dismiss="modal" title="Há»§y">
+                                                                        <i class="bi bi-x-lg"></i>
+                                                                    </button>
+                                                                    <button type="submit" class="modal-action-btn save" title="Cáº­p nháº­t">
+                                                                        <i class="bi bi-pencil-square"></i>
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                        </form>
-                                                    </div>
                                                 </div>
                                             </div>
 
@@ -581,12 +646,15 @@ $stats = [
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                                <button type="submit" class="btn btn-danger">Từ chối</button>
+                                                                <div class="modal-action-group">
+                                                                    <button type="button" class="modal-action-btn cancel" data-bs-dismiss="modal" title="Há»§y">
+                                                                        <i class="bi bi-x-lg"></i>
+                                                                    </button>
+                                                                    <button type="submit" class="modal-action-btn reject" title="Tá»« chá»i">
+                                                                        <i class="bi bi-x-octagon"></i>
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -617,4 +685,3 @@ $stats = [
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

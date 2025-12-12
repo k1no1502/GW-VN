@@ -2,8 +2,17 @@
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/donation_tracking_helpers.php';
 
 requireAdmin();
+ensureDonationTrackingTable();
+$trackingTemplates = getDonationTrackingTemplates();
+$trackingStatusOptions = [
+    'pending'     => 'Chờ xử lý',
+    'in_progress' => 'Đang xử lý',
+    'completed'   => 'Hoàn thành'
+];
+$finalTrackingStepKey = array_key_last($trackingTemplates);
 
 // Handle status update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -69,6 +78,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 );
                 setFlashMessage('success', 'Đã từ chối quyên góp.');
                 logActivity($_SESSION['user_id'], 'reject_donation', "Rejected donation #$donation_id");
+            } elseif ($action === 'update_tracking') {
+                $steps = $_POST['steps'] ?? [];
+                $isJourneyLocked = false;
+                if ($finalTrackingStepKey) {
+                    $finalStepRow = Database::fetch(
+                        "SELECT step_status FROM donation_tracking_steps WHERE donation_id = ? AND step_key = ?",
+                        [$donation_id, $finalTrackingStepKey]
+                    );
+                    if ($finalStepRow && $finalStepRow['step_status'] === 'completed') {
+                        $isJourneyLocked = true;
+                    }
+                }
+
+                if ($isJourneyLocked) {
+                    setFlashMessage('error', 'Hành trình đã hoàn tất, không thể chỉnh sửa trạng thái.');
+                } else {
+                    ensureDonationTrackingTable();
+                    Database::beginTransaction();
+
+                    foreach ($trackingTemplates as $stepKey => $template) {
+                        $input = $steps[$stepKey] ?? [];
+                        $statusValue = array_key_exists(($input['status'] ?? ''), $trackingStatusOptions)
+                            ? $input['status']
+                            : $template['default_status'];
+                        $eventTimeRaw = trim($input['event_time'] ?? '');
+                        $eventTime = $eventTimeRaw !== '' ? date('Y-m-d H:i:s', strtotime($eventTimeRaw)) : null;
+                        $note = trim($input['note'] ?? '');
+
+                        $existingStep = Database::fetch(
+                            "SELECT id FROM donation_tracking_steps WHERE donation_id = ? AND step_key = ?",
+                            [$donation_id, $stepKey]
+                        );
+
+                        if ($existingStep) {
+                            Database::execute(
+                                "UPDATE donation_tracking_steps 
+                                 SET step_status = ?, event_time = ?, note = ?, updated_at = NOW()
+                                 WHERE donation_id = ? AND step_key = ?",
+                                [$statusValue, $eventTime, $note ?: null, $donation_id, $stepKey]
+                            );
+                        } else {
+                            Database::execute(
+                                "INSERT INTO donation_tracking_steps 
+                                    (donation_id, step_key, step_label, description, step_order, step_status, event_time, note)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                [
+                                    $donation_id,
+                                    $stepKey,
+                                    $template['label'],
+                                    $template['description'],
+                                    $template['order'],
+                                    $statusValue,
+                                    $eventTime,
+                                    $note ?: null
+                                ]
+                            );
+                        }
+                    }
+
+                    Database::commit();
+                    setFlashMessage('success', 'Đã cập nhật hành trình quyên góp.');
+                    logActivity($_SESSION['user_id'], 'update_donation_tracking', "Updated tracking for donation #$donation_id");
+                }
             }
         } catch (Exception $e) {
             Database::rollback();
@@ -85,6 +157,19 @@ $status = $_GET['status'] ?? '';
 $page = (int)($_GET['page'] ?? 1);
 $per_page = 20;
 $offset = ($page - 1) * $per_page;
+
+$countsSql = "SELECT 
+                COUNT(*) AS total,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_count,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+                SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected_count
+              FROM donations";
+$countsData = Database::fetch($countsSql) ?: [
+    'total' => 0,
+    'pending_count' => 0,
+    'approved_count' => 0,
+    'rejected_count' => 0
+];
 
 $where = "1=1";
 $params = [];
@@ -108,6 +193,8 @@ $sql = "SELECT d.*, u.name as donor_name, u.email as donor_email, c.name as cate
 $params[] = $per_page;
 $params[] = $offset;
 $donations = Database::fetchAll($sql, $params);
+$donationIds = array_column($donations, 'donation_id');
+$trackingMap = getDonationTrackingMap($donationIds);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -152,6 +239,12 @@ $donations = Database::fetchAll($sql, $params);
         }
         .donation-action-btn.approve {
             background-color: #198754;
+        }
+        .donation-action-btn.edit {
+            background-color: #0d6efd;
+        }
+        .donation-action-btn.track {
+            background-color: #0aa1ae;
         }
         .donation-action-btn.reject {
             background-color: #dc3545;
@@ -204,28 +297,26 @@ $donations = Database::fetchAll($sql, $params);
                     <h1 class="h2"><i class="bi bi-heart-fill me-2"></i>Quản lý quyên góp</h1>
                 </div>
 
-                <?php echo displayFlashMessages(); ?>
-
-                <!-- Filter tabs -->
+                <?php echo displayFlashMessages(); ?>                <!-- Filter tabs -->
                 <ul class="nav nav-tabs mb-4 donations-tabs">
                     <li class="nav-item">
                         <a class="nav-link <?php echo $status === '' ? 'active' : ''; ?>" href="donations.php">
-                            Tất cả (<?php echo $totalDonations; ?>)
+                            Tất cả (<?php echo (int)$countsData['total']; ?>)
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo $status === 'pending' ? 'active' : ''; ?>" href="donations.php?status=pending">
-                            Chờ duyệt
+                            Chờ duyệt(<?php echo (int)$countsData['pending_count']; ?>)
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo $status === 'approved' ? 'active' : ''; ?>" href="donations.php?status=approved">
-                            Đã duyệt
+                            Đã duyệt (<?php echo (int)$countsData['approved_count']; ?>)
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo $status === 'rejected' ? 'active' : ''; ?>" href="donations.php?status=rejected">
-                            Từ chối
+                            Từ chối(<?php echo (int)$countsData['rejected_count']; ?>)
                         </a>
                     </li>
                 </ul>
@@ -256,6 +347,12 @@ $donations = Database::fetchAll($sql, $params);
                                         <?php foreach ($donations as $donation): ?>
                                             <tr>
                                                 <td><?php echo $donation['donation_id']; ?></td>
+                                                <?php
+                                                    $existingSteps = $trackingMap[$donation['donation_id']] ?? [];
+                                                    $finalStepCompleted = $finalTrackingStepKey
+                                                        && isset($existingSteps[$finalTrackingStepKey])
+                                                        && ($existingSteps[$finalTrackingStepKey]['step_status'] === 'completed');
+                                                ?>
                                                 <td>
                                                     <strong><?php echo htmlspecialchars($donation['item_name']); ?></strong>
                                                     <?php if ($donation['description']): ?>
@@ -285,12 +382,28 @@ $donations = Database::fetchAll($sql, $params);
                                                 <td><?php echo formatDate($donation['created_at']); ?></td>
                                                 <td>
                                                     <div class="donation-actions">
-                                                        <button type="button" 
-                                                                class="donation-action-btn view" 
-                                                                data-bs-toggle="modal" 
-                                                                data-bs-target="#viewModal<?php echo $donation['donation_id']; ?>">
-                                                            <i class="bi bi-eye"></i>
-                                                        </button>
+                                                        <?php if ($finalStepCompleted): ?>
+                                                            <button type="button"
+                                                                    class="donation-action-btn edit"
+                                                                    title="Hành trình đã hoàn tất"
+                                                                    disabled>
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <button type="button"
+                                                                    class="donation-action-btn edit"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#trackingModal<?php echo $donation['donation_id']; ?>"
+                                                                    title="Chỉnh sửa hành trình">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+                                                        <a class="donation-action-btn track"
+                                                           href="../donation-tracking.php?id=<?php echo $donation['donation_id']; ?>"
+                                                           target="_blank"
+                                                           title="Xem trang theo dAõi hAÿnh trAªnh">
+                                                            <i class="bi bi-geo-alt"></i>
+                                                        </a>
                                                         <?php if ($donation['status'] === 'pending'): ?>
                                                             <form method="POST" class="d-inline" onsubmit="return confirm('Duyệt quyên góp này?');">
                                                                 <input type="hidden" name="donation_id" value="<?php echo $donation['donation_id']; ?>">
@@ -357,6 +470,71 @@ $donations = Database::fetchAll($sql, $params);
                                                 </div>
                                             </div>
 
+                                            <!-- Tracking Modal -->
+                                            <div class="modal fade" id="trackingModal<?php echo $donation['donation_id']; ?>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                                    <div class="modal-content">
+                                                        <form method="POST">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Chỉnh sửa hành trình #<?php echo $donation['donation_id']; ?></h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <input type="hidden" name="donation_id" value="<?php echo $donation['donation_id']; ?>">
+                                                                <input type="hidden" name="action" value="update_tracking">
+                                                                <?php
+                                                                $existingSteps = $trackingMap[$donation['donation_id']] ?? [];
+                                                                foreach ($trackingTemplates as $stepKey => $template):
+                                                                    $current = $existingSteps[$stepKey] ?? null;
+                                                                    $currentStatus = $current['step_status'] ?? $template['default_status'];
+                                                                    $currentEventTime = $current && !empty($current['event_time']) ? date('Y-m-d\\TH:i', strtotime($current['event_time'])) : '';
+                                                                    $currentNote = $current['note'] ?? '';
+                                                                ?>
+                                                                    <div class="border rounded p-3 mb-3">
+                                                                        <div class="d-flex justify-content-between mb-2">
+                                                                            <div>
+                                                                                <strong><?php echo htmlspecialchars($template['label']); ?></strong>
+                                                                                <p class="text-muted mb-0"><?php echo htmlspecialchars($template['description']); ?></p>
+                                                                            </div>
+                                                                            <div style="min-width:200px;">
+                                                                                <label class="form-label small mb-1">Trạng thái</label>
+                                                                                <select class="form-select" name="steps[<?php echo $stepKey; ?>][status]">
+                                                                                    <?php foreach ($trackingStatusOptions as $statusKey => $statusLabel): ?>
+                                                                                        <option value="<?php echo $statusKey; ?>" <?php echo $statusKey === $currentStatus ? 'selected' : ''; ?>>
+                                                                                            <?php echo $statusLabel; ?>
+                                                                                        </option>
+                                                                                    <?php endforeach; ?>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row g-3">
+                                                                            <div class="col-md-6">
+                                                                                <label class="form-label small">Thời gian cập nhật</label>
+                                                                                <input type="datetime-local"
+                                                                                       class="form-control"
+                                                                                       name="steps[<?php echo $stepKey; ?>][event_time]"
+                                                                                       value="<?php echo $currentEventTime; ?>">
+                                                                            </div>
+                                                                            <div class="col-md-6">
+                                                                                <label class="form-label small">Ghi chú</label>
+                                                                                <input type="text"
+                                                                                       class="form-control"
+                                                                                       name="steps[<?php echo $stepKey; ?>][note]"
+                                                                                       value="<?php echo htmlspecialchars($currentNote); ?>">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Huỷ bỏ</button>
+                                                                <button type="submit" class="btn btn-primary">Lưu hành trình</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <!-- Reject Modal -->
                                             <div class="modal" id="rejectModal<?php echo $donation['donation_id']; ?>" tabindex="-1">
                                                 <div class="modal-dialog">
@@ -415,6 +593,7 @@ $donations = Database::fetchAll($sql, $params);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
 
 

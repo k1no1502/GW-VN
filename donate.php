@@ -89,14 +89,14 @@ function excelColumnToIndex(string $letters): int
  */
 function readXlsxRows(string $filePath): array
 {
-    $rows = [];
     if (!class_exists('ZipArchive')) {
-        return $rows;
+        throw new RuntimeException('Máy chủ chưa bật ZipArchive (bắt buộc để đọc file .xlsx).');
     }
 
+    $rows = [];
     $zip = new ZipArchive();
     if ($zip->open($filePath) !== true) {
-        return $rows;
+        throw new RuntimeException('Không thể mở file Excel (.xlsx).');
     }
 
     // Shared strings
@@ -122,12 +122,12 @@ function readXlsxRows(string $filePath): array
     $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
     if ($sheetXml === false) {
         $zip->close();
-        return $rows;
+        throw new RuntimeException('Không tìm thấy dữ liệu sheet1 trong file .xlsx.');
     }
     $sheet = @simplexml_load_string($sheetXml);
     if (!$sheet || !isset($sheet->sheetData->row)) {
         $zip->close();
-        return $rows;
+        throw new RuntimeException('Không thể đọc nội dung sheet1 trong file .xlsx.');
     }
 
     foreach ($sheet->sheetData->row as $row) {
@@ -535,12 +535,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !(isset($_FILES['donation_excel']) 
             }
 
             Database::commit();
-            $success = "Quyên góp dă du?c g?i! B?n có th? theo dơi trong trang c?a tôi.";
+            $success = "Quyên góp dă được gửi. Bạn có thể theo dõi trong trang của tôi.";
             $_POST = [];
         } catch (Exception $e) {
             Database::rollback();
             error_log("Donation error: " . $e->getMessage());
-            $error = "Có l?i x?y ra khi g?i quyên góp. Vui ḷng th? l?i.";
+            $error = "Có lỗi xảy ra khi gửi quyên góp. Vui llòng thử lỗi.";
         }
     }
 }
@@ -604,7 +604,7 @@ include 'includes/header.php';
                                     <input id="donation_excel_input" type="file" name="donation_excel" accept=".csv,.xls,.xlsx" style="display:none">
                                 </label>
                             </form>
-                            <small class="text-muted">Upload hỗ trợ CSV UTF-8. Dùng mẫu .xls để điền cho đẹp rồi lưu lại dạng CSV trước khi nhập.</small>
+                            <small class="text-muted">Upload hỗ trợ CSV UTF-8, XLS và XLSX (khuuyến nghị dùng file .csv và xlsx theo mẫu).</small>
                         </div>
                         <?php if ($success): ?>
                             <div class="alert alert-success" role="alert">
@@ -629,13 +629,14 @@ include 'includes/header.php';
                                     <div class="row">
                                         <div class="col-md-8 mb-3">
                                             <label class="form-label">Tên vật phẩm *</label>
-                                            <input type="text" class="form-control" name="item_name[]" value="<?php echo htmlspecialchars($fi['name']); ?>" placeholder="Ví d?: áo so mi nam, Sách giáo khoa l?p 5..." required>
+                                            <input type="text" class="form-control" name="item_name[]" value="<?php echo htmlspecialchars($fi['name']); ?>" placeholder="Ví dụ: áo sơ mi nam, Sách giáo khoa lớp 5...
+" required>
                                             <div class="invalid-feedback">Vui lòng nhập tên vật phẩm.</div>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Danh m?c *</label>
                                             <select class="form-select" name="category_id[]" required>
-                                                <option value="">Ch?n danh m?c</option>
+                                                <option value="">Chọn danh mục</option>
                                                 <?php foreach ($categories as $category): ?>
                                                     <option value="<?php echo $category['category_id']; ?>" <?php echo ($fi['category_id'] == $category['category_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($category['name']); ?></option>
                                                 <?php endforeach; ?>

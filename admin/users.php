@@ -130,6 +130,36 @@ $stats = [
         }
         .users-action-btn.edit { background-color: #0d6efd; }
         .users-action-btn i { pointer-events: none; }
+        .modal-action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .modal-action-btn {
+            width: 48px;
+            height: 40px;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .modal-action-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+        .modal-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .modal-action-btn.cancel { background-color: #6c757d; }
+        .modal-action-btn.role { background-color: #0d6efd; }
+        .modal-action-btn.role { box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.18); }
+        .modal-action-btn.status { background-color: #f1b600; color: #fff; }
     </style>
 </head>
 <body>
@@ -344,12 +374,18 @@ $stats = [
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                                <button type="submit" name="action" value="update_role" class="btn btn-primary">Cập nhật vai trò</button>
-                                                                <button type="submit" name="action" value="update_status" class="btn btn-warning">Cập nhật trạng thái</button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
+                                                                <div class="modal-action-group">
+                                                                    <button type="button" class="modal-action-btn cancel" data-bs-dismiss="modal" title="Há»§y">
+                                                                        <i class="bi bi-x-lg"></i>
+                                                                    </button>
+                                                                    <button type="submit" name="action" value="update_role" class="modal-action-btn role" title="Cáº­p nháº­t vai trá»">
+                                                                        <i class="bi bi-pencil-square"></i>
+                                                                    </button>
+                                                                    <button type="submit" name="action" value="update_status" class="modal-action-btn status" title="Cáº­p nháº­t tráº¡ng thÃ¡i">
+                                                                        <i class="bi bi-eye"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div></div>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
@@ -381,6 +417,3 @@ $stats = [
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-

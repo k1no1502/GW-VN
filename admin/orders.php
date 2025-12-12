@@ -5,6 +5,9 @@ require_once '../includes/functions.php';
 
 requireAdmin();
 
+// Detect history table once so we can log safely in POST handler
+$historyTableExists = !empty(Database::fetchAll("SHOW TABLES LIKE 'order_status_history'"));
+
 // Handle status update / cancel
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $order_id = (int)($_POST['order_id'] ?? 0);
@@ -21,9 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $new_status = $old_status;
 
             if ($action === 'update_status') {
-                $new_status = $_POST['status'] ?? $old_status;
+                $new_status = $_POST['status'] ?? '';
                 if (!in_array($new_status, ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'], true)) {
                     throw new Exception('Trạng thái không hợp lệ.');
+                }
+                if ($new_status === $old_status) {
+                    throw new Exception('Vui lòng chọn trạng thái mới khác trạng thái hiện tại.');
                 }
 
                 Database::execute(
@@ -109,9 +115,6 @@ $totalRow   = Database::fetch($totalSql, $params);
 $totalCount = (int)($totalRow['count'] ?? 0);
 $totalPages = max(1, ceil($totalCount / $per_page));
 
-// Get orders with summary
-$historyTableExists = !empty(Database::fetchAll("SHOW TABLES LIKE 'order_status_history'"));
-
 $sql = "SELECT o.*, 
                u.name  as user_name,
                u.email as user_email,
@@ -187,6 +190,34 @@ $pageTitle = "Quản lý đơn hàng";
         .orders-action-btn.status { background-color: #6c757d; }
         .orders-action-btn.cancel { background-color: #dc3545; }
         .orders-action-btn i { pointer-events: none; }
+        .modal-action-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .modal-action-btn {
+            width: 48px;
+            height: 40px;
+            border: none;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: pointer;
+        }
+        .modal-action-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+        .modal-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .modal-action-btn.cancel { background-color: #6c757d; }
+        .modal-action-btn.submit { background-color: #0d6efd; }
     </style>
 </head>
 <body>
@@ -422,23 +453,26 @@ $pageTitle = "Quản lý đơn hàng";
 
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Trạng thái mới *</label>
-                                                                <select name="status" class="form-select" required>
-                                                                    <option value="" disabled selected>-- Chọn trạng thái mới --</option>
-                                                                    <option value="pending">Chờ xử lý</option>
-                                                                    <option value="confirmed">Đã xác nhận</option>
-                                                                    <option value="shipping">Đang giao</option>
-                                                                    <option value="delivered">Đã giao</option>
-                                                                    <option value="cancelled">Đã hủy</option>
-                                                                </select>
+                                                                    <select name="status" class="form-select" required>
+                                                                        <option value="" disabled selected>-- Chọn trạng thái mới --</option>
+                                                                        <option value="pending">Chờ xử lý</option>
+                                                                        <option value="confirmed">Đã xác nhận</option>
+                                                                        <option value="shipping">Đang giao</option>
+                                                                        <option value="delivered">Đã giao</option>
+                                                                        <option value="cancelled">Đã hủy</option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                                                <div class="modal-action-group">
+                                                                    <button type="button" class="modal-action-btn cancel" data-bs-dismiss="modal" title="Há»§y">
+                                                                        <i class="bi bi-x-lg"></i>
+                                                                    </button>
+                                                                    <button type="submit" name="action" value="update_status" class="modal-action-btn submit" title="Cập nhật" onclick="this.form.submit();">
+                                                                        <i class="bi bi-pencil-square"></i>
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -470,9 +504,3 @@ $pageTitle = "Quản lý đơn hàng";
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-
-
-
-

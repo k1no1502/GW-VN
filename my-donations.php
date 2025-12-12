@@ -183,13 +183,17 @@ include 'includes/header.php';
                                                 </span>
                                             </td>
                                             <td><?php echo formatDate($donation['created_at'], 'd/m/Y H:i'); ?></td>
-                                            <td>
+                                            <td class="d-flex gap-2">
                                                 <button type="button" 
                                                         class="btn btn-sm btn-info" 
                                                         data-bs-toggle="modal" 
                                                         data-bs-target="#viewModal<?php echo $donation['donation_id']; ?>">
                                                     <i class="bi bi-eye"></i> Xem
                                                 </button>
+                                                <a href="donation-tracking.php?id=<?php echo $donation['donation_id']; ?>" 
+                                                   class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-geo-alt"></i> Theo dõi
+                                                </a>
                                             </td>
                                         </tr>
 

@@ -17,12 +17,26 @@ $stats = getStatistics();
 $donationStats = Database::fetchAll("
     SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
            COUNT(*) as count,
-           SUM(quantity) as total_quantity
+           SUM(quantity) as total_quantity,
+           SUM(CASE WHEN status = 'approved' THEN quantity ELSE 0 END) as approved_quantity
     FROM donations
     WHERE created_at BETWEEN ? AND ?
     GROUP BY DATE_FORMAT(created_at, '%Y-%m')
     ORDER BY month ASC
 ", [$start_date, $end_date . ' 23:59:59']);
+
+$donationGrowth = [];
+$previousCount = null;
+foreach ($donationStats as $stat) {
+    $growth = null;
+    if ($previousCount !== null) {
+        $growth = $previousCount > 0
+            ? round((($stat['count'] - $previousCount) / $previousCount) * 100, 2)
+            : null;
+    }
+    $donationGrowth[] = array_merge($stat, ['growth' => $growth]);
+    $previousCount = (int)$stat['count'];
+}
 
 // Get category distribution
 $categoryStats = Database::fetchAll("
@@ -174,6 +188,61 @@ $inventoryStats = [
                 </div>
 
                 <!-- Detailed Statistics -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Bảng thống kê quyên góp theo tháng</h6>
+                        <small class="text-muted">So sánh số lượt quyên góp và tổng vật phẩm</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Tháng</th>
+                                        <th>Số lượt quyên góp</th>
+                                        <th>Tổng vật phẩm</th>
+                                        <th>Vật phẩm đã duyệt</th>
+                                        <th>Tăng trưởng so với tháng trước</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($donationGrowth)): ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">Không có dữ liệu trong khoảng thời gian đã chọn.</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <?php foreach ($donationGrowth as $row): ?>
+                                            <tr>
+                                                <td><strong><?php echo htmlspecialchars($row['month']); ?></strong></td>
+                                                <td><?php echo number_format($row['count']); ?></td>
+                                                <td><?php echo number_format($row['total_quantity']); ?></td>
+                                                <td><?php echo number_format($row['approved_quantity'] ?? 0); ?></td>
+                                                <td>
+                                                    <?php if ($row['growth'] === null): ?>
+                                                        <span class="text-muted">–</span>
+                                                    <?php else: ?>
+                                                        <?php if ($row['growth'] >= 0): ?>
+                                                            <span class="text-success">
+                                                                <i class="bi bi-arrow-up"></i>
+                                                                <?php echo $row['growth']; ?>%
+                                                            </span>
+                                                        <?php else: ?>
+                                                            <span class="text-danger">
+                                                                <i class="bi bi-arrow-down"></i>
+                                                                <?php echo $row['growth']; ?>%
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="card shadow-sm">

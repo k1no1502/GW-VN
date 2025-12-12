@@ -12,13 +12,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($item_id > 0) {
         try {
             if ($action === 'update_price') {
-                $price_type = $_POST['price_type'];
-                $sale_price = (float)($_POST['sale_price'] ?? 0);
+                $price_type   = $_POST['price_type'];
+                $sale_price   = (float)($_POST['sale_price'] ?? 0);
+                $new_name     = trim($_POST['name'] ?? '');
+                $new_desc     = trim($_POST['description'] ?? '');
+
+                $columns   = ['price_type = ?', 'sale_price = ?'];
+                $values    = [$price_type, $sale_price];
+
+                if ($new_name !== '') {
+                    $columns[] = 'name = ?';
+                    $values[]  = $new_name;
+                }
+                if ($new_desc !== '') {
+                    $columns[] = 'description = ?';
+                    $values[]  = $new_desc;
+                }
+
                 Database::execute(
-                    "UPDATE inventory SET price_type = ?, sale_price = ?, updated_at = NOW() WHERE item_id = ?",
-                    [$price_type, $sale_price, $item_id]
+                    "UPDATE inventory SET " . implode(', ', $columns) . ", updated_at = NOW() WHERE item_id = ?",
+                    array_merge($values, [$item_id])
                 );
-                setFlashMessage('success', 'Da cap nhat gia ban.');
+                setFlashMessage('success', 'Đã cập nhật thông tin vật phẩm.');
             } elseif ($action === 'toggle_sale') {
                 Database::execute(
                     "UPDATE inventory SET is_for_sale = NOT is_for_sale, updated_at = NOW() WHERE item_id = ?",
@@ -151,6 +166,37 @@ $inventoryStats = [
         }
         .inventory-action-btn i {
             pointer-events: none;
+        }
+        .modal-action-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .modal-action-btn {
+            width: 48px;
+            height: 40px;
+            border: none;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .modal-action-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+        .modal-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .modal-action-btn.cancel {
+            background-color: #6c757d;
+        }
+        .modal-action-btn.submit {
+            background-color: #0d6efd;
         }
     </style>
 </head>
@@ -376,11 +422,15 @@ $inventoryStats = [
                                                     <input type="hidden" name="action" value="update_price">
                                                     
                                                     <div class="mb-3">
-                                                        <label class="form-label">Vật phẩm</label>
-                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($item['name']); ?>" readonly>
+                                                        <label class="form-label">Tên vật phẩm</label>
+                                                        <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($item['name']); ?>">
                                                     </div>
-                                                    
+
                                                     <div class="mb-3">
+                                                        <label class="form-label">Mô tả</label>
+                                                        <textarea class="form-control" name="description" rows="3" placeholder="Cập nhật mô tả sản phẩm"><?php echo htmlspecialchars($item['description']); ?></textarea>
+                                                    </div>
+<div class="mb-3">
                                                         <label class="form-label">Loại giá *</label>
                                                         <select class="form-select" name="price_type" required>
                                                             <option value="free" <?php echo $item['price_type'] === 'free' ? 'selected' : ''; ?>>Miễn phí</option>
@@ -401,8 +451,14 @@ $inventoryStats = [
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                                    <div class="modal-action-group">
+                                                        <button type="button" class="modal-action-btn cancel" data-bs-dismiss="modal" title="Há»§y">
+                                                            <i class="bi bi-x-lg"></i>
+                                                        </button>
+                                                        <button type="submit" class="modal-action-btn submit" title="Cáº­p nháº­t">
+                                                            <i class="bi bi-pencil-square"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </form>
                                         </div>
@@ -451,6 +507,11 @@ $inventoryStats = [
     </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
